@@ -13,6 +13,31 @@ describe('RRuleSet', function () {
   // NOTE: can take a longer time.
   this.ctx.ALSO_TEST_BEFORE_AFTER_BETWEEN = true
 
+  it("creates the union of two rrules of same frequency", () => {
+    const set = new RRuleSet();
+
+    set.rrule(
+      new RRule({
+        freq: RRule.WEEKLY,
+        byweekday: [RRule.SA, RRule.SU],
+        dtstart: parse("19970902T090000")
+      })
+    );
+    set.rrule(
+      new RRule({
+        freq: RRule.WEEKLY,
+        byweekday: [RRule.MO, RRule.TU, RRule.WE, RRule.TH, RRule.FR],
+        dtstart: parse("19970902T090000")
+      })
+    );
+    expect(
+      set
+        .all((d, len) => len < 7)
+        .map(date => date.getUTCDay())
+        .sort()
+    ).to.equal([0, 1, 2, 3, 4, 5, 6]);
+  });
+  
   testRecurring('testSet',
     function () {
       const set = new RRuleSet()
